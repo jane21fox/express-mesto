@@ -49,7 +49,10 @@ const setCardLike = (req, res) => {
     },
   )
     .populate(['owner', 'likes'])
-    .then((card) => res.status(200).send(card))
+    .then((card) => {
+      if (card) return res.status(200).send(card);
+      return res.status(404).send({ message: 'Карточка не найдена' });
+    })
     .catch((err) => {
       hadleErrors(err, 'Ошибка при добавлении лайка', res);
     });
@@ -67,7 +70,10 @@ const deleteCardLike = (req, res) => {
     },
   )
     .populate(['owner', 'likes'])
-    .then((card) => res.status(200).send(card))
+    .then((card) => {
+      if (card) return res.status(200).send(card);
+      return res.status(404).send({ message: 'Карточка не найдена' });
+    })
     .catch((err) => {
       hadleErrors(err, 'Ошибка при удалении лайка', res);
     });

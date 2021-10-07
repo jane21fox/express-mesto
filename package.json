@@ -2,7 +2,7 @@
   "name": "express-mesto",
   "version": "1.0.0",
   "description": "## Директории",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
@@ -12,7 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/jane21fox/express-mesto.git"
   },
-  "author": "",
+  "author": "Evgeniya Ukhova",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/jane21fox/express-mesto/issues"
