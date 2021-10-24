@@ -55,7 +55,13 @@ const createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(201).send({
+      _id: user._id,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+    }))
     .catch(next);
 };
 
@@ -114,7 +120,7 @@ const login = (req, res, next) => {
           res.cookie('jwt', token, {
             maxAge: 3600000 * 24 * 7,
             httpOnly: true,
-          }).end();
+          }).send({ message: 'Ответ об успешном логин' });
         });
     })
     .then((user) => res.status(201).send(user))

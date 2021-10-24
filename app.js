@@ -1,8 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { errors } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 const routes = require('./routes');
 const auth = require('./middlewares/auth');
+const { handleErrors } = require('./controllers/errors');
 const { login, createUser } = require('./controllers/users');
 
 const PORT = 3000;
@@ -15,8 +16,21 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 app.use(express.json());
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().regex(/^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/),
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), createUser);
 
 app.use(auth);
 
@@ -24,20 +38,6 @@ app.use(routes);
 
 app.use(errors());
 
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message, name } = err;
-  if (name === 'ValidationError') {
-    res.status(400)
-      .send({
-        // message: Object.values(err.errors).map((key) => err.errors[key].message).join(),
-        message,
-      });
-  } else {
-    res.status(statusCode)
-      .send({
-        message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
-      });
-  }
-});
+app.use(handleErrors);
 
 app.listen(PORT, () => {});

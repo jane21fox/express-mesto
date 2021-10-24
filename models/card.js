@@ -12,6 +12,12 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator(link) {
+        return /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/gm.test(link);
+      },
+      message: 'Ссылка не соответствует шаблону',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

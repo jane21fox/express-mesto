@@ -1,5 +1,5 @@
 const SALT_ROUND = 10;
-const JWT_SECRET = 'DUST';
+const { JWT_SECRET = 'dev-key' } = process.env;
 
 module.exports = {
   SALT_ROUND,
