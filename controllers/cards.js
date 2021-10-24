@@ -1,27 +1,22 @@
 const Card = require('../models/card');
-const { hadleErrors } = require('./errors');
+const NotFoundError = require('../errors/not-found-err');
 
-const getCards = (req, res) => Card.find({})
+const getCards = (req, res, next) => Card.find({})
   .populate(['owner', 'likes'])
   .then((cards) => res.status(200).send(cards))
-  .catch((err) => {
-    hadleErrors(err, 'При запросе карточек возникла ошибка', res);
-  });
+  .catch(next);
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  return Card.findByIdAndRemove(cardId)
-    .populate(['owner', 'likes'])
+  return Card.defineOwnerAndDelete(cardId, req.user._id)
     .then((card) => {
       if (card) return res.status(200).send(card);
-      return res.status(404).send({ message: 'Карточка не найдена' });
+      throw new NotFoundError('Карточка не найдена');
     })
-    .catch((err) => {
-      hadleErrors(err, 'При удалении карточки возникла ошибка', res);
-    });
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const cardInfo = {
     name,
@@ -32,12 +27,10 @@ const createCard = (req, res) => {
   };
   return Card.create(cardInfo)
     .then((card) => res.status(200).send(card))
-    .catch((err) => {
-      hadleErrors(err, 'При создании карточки возникла ошибка', res);
-    });
+    .catch(next);
 };
 
-const setCardLike = (req, res) => {
+const setCardLike = (req, res, next) => {
   const { cardId } = req.params;
   return Card.findByIdAndUpdate(
     cardId,
@@ -51,14 +44,12 @@ const setCardLike = (req, res) => {
     .populate(['owner', 'likes'])
     .then((card) => {
       if (card) return res.status(200).send(card);
-      return res.status(404).send({ message: 'Карточка не найдена' });
+      throw new NotFoundError('Карточка не найдена');
     })
-    .catch((err) => {
-      hadleErrors(err, 'Ошибка при добавлении лайка', res);
-    });
+    .catch(next);
 };
 
-const deleteCardLike = (req, res) => {
+const deleteCardLike = (req, res, next) => {
   const { cardId } = req.params;
   return Card.findByIdAndUpdate(
     cardId,
@@ -72,11 +63,9 @@ const deleteCardLike = (req, res) => {
     .populate(['owner', 'likes'])
     .then((card) => {
       if (card) return res.status(200).send(card);
-      return res.status(404).send({ message: 'Карточка не найдена' });
+      throw new NotFoundError('Карточка не найдена');
     })
-    .catch((err) => {
-      hadleErrors(err, 'Ошибка при удалении лайка', res);
-    });
+    .catch(next);
 };
 
 module.exports = {
